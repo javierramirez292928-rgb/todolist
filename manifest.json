@@ -1,0 +1,22 @@
+{
+  "name": "Lista de Tareas PWA",
+  "short_name": "Tareas", 
+  "description": "Una agenda de tareas diarias"
+  "start_url": "https://cdn-icons-png.flaticon.com/512/906/906334.png",
+  "display": "standalone",
+  "background_color": "#226fa2",
+  "theme_color": "#226fa2",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "lista-192.png", 
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src":  "lista-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
