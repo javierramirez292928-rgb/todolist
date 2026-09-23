@@ -26,6 +26,10 @@
 </div>
  
     <script src="Myscript.js"></script>
-
+<script>
+    if('serviceWoker' in navigator){
+        navigator.serviceWoker.register('sw.js');
+    }
+        </script>
 </body>
 </html>
