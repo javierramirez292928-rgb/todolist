@@ -66,3 +66,71 @@ function showTask() {
 
 // Ejecuta la carga de tareas al abrir o refrescar la página
 showTask();
+
+const express = require('express');
+const sqlite3 = require('sqlite3').verbose();
+const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
+
+const app = express();
+const PORT = 3000;
+
+app.use(cors());
+app.use(express.json());
+app.use(express.static('./'));
+
+// 1. DEFINIR LA CARPETA Y LA RUTA DE LA BASE DE DATOS
+const dbFolder = path.join(__dirname, 'database');
+const dbPath = path.join(dbFolder, 'tareas.db');
+
+// Crear la carpeta 'database' automáticamente si no existe
+if (!fs.existsSync(dbFolder)) {
+    fs.mkdirSync(dbFolder, { recursive: true });
+}
+
+// 2. CONECTAR A LA BASE DE DATOS EN LA NUEVA CARPETA
+const db = new sqlite3.Database(dbPath, (err) => {
+    if (err) console.error("Error al conectar con SQLite:", err.message);
+    else console.log(`Base de datos conectada exitosamente en: ${dbPath}`);
+});
+
+// Crear la tabla si no existe
+db.run(`CREATE TABLE IF NOT EXISTS tareas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    texto TEXT NOT NULL
+)`);
+
+// --- RUTAS DE LA API ---
+
+// Obtener todas las tareas
+app.get('/api/tareas', (req, res) => {
+    db.all("SELECT * FROM tareas", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+// Agregar una tarea
+app.post('/api/tareas', (req, res) => {
+    const { texto } = req.body;
+    if (!texto) return res.status(400).json({ error: "El texto es requerido" });
+
+    db.run("INSERT INTO tareas (texto) VALUES (?)", [texto], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ id: this.lastID, texto });
+    });
+});
+
+// Eliminar una tarea
+app.delete('/api/tareas/:id', (req, res) => {
+    const { id } = req.params;
+    db.run("DELETE FROM tareas WHERE id = ?", [id], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Tarea eliminada", id });
+    });
+});
+
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
